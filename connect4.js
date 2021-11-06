@@ -13,6 +13,7 @@ class Game {
     this.makeBoard();
     this.makeHtmlBoard();
     this.gameOver = false;
+    this.disabled = false;
   }
   /** makeBoard: create in-JS board structure:
    *   board = array of rows, each row is array of cells  (board[y][x])
@@ -92,6 +93,9 @@ class Game {
   /** handleClick: handle click of column top to play piece */
 
   handleClick(evt) {
+    if (this.disabled) {
+      return;
+    }
     // get x from ID of clicked cell
     const x = +evt.target.id;
 
@@ -117,17 +121,24 @@ class Game {
     }
 
     // switch players
-
     if (this.currPlayer === this.players[0]) {
       this.currPlayer = this.players[1];
     } else if (this.currPlayer === this.players[1]) {
       this.currPlayer = this.players[2];
-    } else if (this.currPlayer === this.players[2]) {
-      this.currPlayer = this.players[0];
+      this.disabled = true;
+      setTimeout(() => this.compMove(), 1200);
     }
-    // this.currPlayer === this.players[0] ? this.players[1] : this.players[0];
   }
-  /** checkForWin: check board cell-by-cell for "does a win start here?" */
+
+  //Computer takes their turn in random column
+  compMove() {
+    let compX = Math.floor(Math.random() * this.width);
+    let compY = this.findSpotForCol(compX);
+    this.board[compY][compX] = this.currPlayer;
+    this.placeInTable(compY, compX);
+    this.currPlayer = this.players[0];
+    this.disabled = false;
+  }
 
   checkForWin() {
     const _win = (cells) =>
